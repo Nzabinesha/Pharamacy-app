@@ -1,13 +1,23 @@
-import { Link, Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Link, Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useCartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
 
 export function RootLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const cartItems = useCartStore(state => state.items);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const user = useAuthStore(state => state.user);
+  const logout = useAuthStore(state => state.logout);
+  const isAuthenticated = user !== null;
   
   // Don't show header/footer on full-page views
   const isFullPage = ['/dashboard', '/notifications'].includes(location.pathname);
+
+  function handleLogout() {
+    logout();
+    navigate('/');
+  }
 
   if (isFullPage) {
     return <Outlet />;
@@ -70,18 +80,34 @@ export function RootLayout() {
               </NavLink>
             </nav>
             <div className="flex items-center gap-3">
-              <Link 
-                to="/login" 
-                className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
-              >
-                Login
-              </Link>
-              <Link 
-                to="/signup" 
-                className="btn-primary text-sm px-4 py-2"
-              >
-                Sign Up
-              </Link>
+              {isAuthenticated && user ? (
+                <>
+                  <div className="hidden md:block text-sm text-gray-700">
+                    <span className="font-medium">Hello, {user.name}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link 
+                    to="/signup" 
+                    className="btn-primary text-sm px-4 py-2"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

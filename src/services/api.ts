@@ -1,9 +1,15 @@
 import { pharmacies, Pharmacy } from './data';
+import { User } from '@/store/authStore';
 
 export interface SearchParams {
   q?: string;
   loc?: string;
   insurance?: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -52,6 +58,95 @@ export async function getPharmacy(id: string): Promise<Pharmacy | undefined> {
   // Fallback to mock data
   await new Promise(r => setTimeout(r, 150));
   return pharmacies.find(p => p.id === id);
+}
+
+export async function loginUser(email: string, password: string): Promise<AuthResponse> {
+  try {
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    }
+    throw new Error('Login failed');
+  } catch (error) {
+    console.warn('API unavailable, using mock authentication', error);
+  }
+  
+  // Mock authentication - simulate API delay
+  await new Promise(r => setTimeout(r, 500));
+  
+  // In a real app, validate credentials properly
+  // For demo purposes, accept any email/password
+  if (!email || !password) {
+    throw new Error('Email and password are required');
+  }
+  
+  // Mock user response
+  const user: User = {
+    id: `user-${Date.now()}`,
+    email,
+    name: email.split('@')[0],
+    role: 'user',
+  };
+  
+  const token = `mock-token-${Date.now()}`;
+  
+  return { user, token };
+}
+
+export async function signupUser(
+  name: string,
+  email: string,
+  password: string,
+  phone?: string
+): Promise<AuthResponse> {
+  try {
+    const response = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, email, password, phone }),
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    }
+    throw new Error('Signup failed');
+  } catch (error) {
+    console.warn('API unavailable, using mock authentication', error);
+  }
+  
+  // Mock authentication - simulate API delay
+  await new Promise(r => setTimeout(r, 500));
+  
+  // Validate input
+  if (!name || !email || !password) {
+    throw new Error('Name, email, and password are required');
+  }
+  
+  if (password.length < 6) {
+    throw new Error('Password must be at least 6 characters');
+  }
+  
+  // Mock user response
+  const user: User = {
+    id: `user-${Date.now()}`,
+    email,
+    name,
+    phone,
+    role: 'user',
+  };
+  
+  const token = `mock-token-${Date.now()}`;
+  
+  return { user, token };
 }
 
 
