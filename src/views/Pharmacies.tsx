@@ -1,0 +1,279 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { searchPharmacies } from '@/services/api';
+import type { Pharmacy } from '@/services/data';
+import { MapView } from '@/ui/MapView';
+
+export function Pharmacies() {
+  const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<Pharmacy[]>([]);
+  const [searchQuery, setSearchQuery] = useState(params.get('q') || '');
+  const [searchLocation, setSearchLocation] = useState(params.get('loc') || '');
+
+  const queryParams = useMemo(() => ({
+    q: params.get('q') || undefined,
+    loc: params.get('loc') || undefined,
+    insurance: params.get('insurance') || undefined,
+  }), [params]);
+
+  useEffect(() => {
+    setLoading(true);
+    searchPharmacies(queryParams).then(res => {
+      setItems(res);
+      setLoading(false);
+    });
+  }, [queryParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newParams = new URLSearchParams();
+    if (searchQuery) newParams.set('q', searchQuery);
+    if (searchLocation) newParams.set('loc', searchLocation);
+    if (queryParams.insurance) newParams.set('insurance', queryParams.insurance);
+    setParams(newParams);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Search Header */}
+      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="text-3xl md:text-4xl font-bold mb-6">🔍 Medicine Finder</h1>
+          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-field text-gray-900"
+              placeholder="Search medicine (e.g., Amoxicillin)"
+            />
+            <input
+              value={searchLocation}
+              onChange={(e) => setSearchLocation(e.target.value)}
+              className="input-field text-gray-900"
+              placeholder="Location (e.g., Kacyiru)"
+            />
+            <button type="submit" className="btn-primary bg-white text-primary-700 hover:bg-primary-50">
+              Search
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Insurance Filters */}
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3">Filter by Insurance:</h2>
+          <div className="flex flex-wrap gap-3">
+            <FilterLink 
+              label="All Insurance" 
+              toParams={{ ...queryParams, insurance: undefined }} 
+              active={!queryParams.insurance}
+              icon="🏥"
+            />
+            <FilterLink 
+              label="RSSB" 
+              toParams={{ ...queryParams, insurance: 'RSSB' }} 
+              active={queryParams.insurance === 'RSSB'}
+              icon="🏛️"
+            />
+            <FilterLink 
+              label="Mutuelle" 
+              toParams={{ ...queryParams, insurance: 'Mutuelle' }} 
+              active={queryParams.insurance === 'Mutuelle'}
+              icon="💚"
+            />
+            <FilterLink 
+              label="Private-A" 
+              toParams={{ ...queryParams, insurance: 'Private-A' }} 
+              active={queryParams.insurance === 'Private-A'}
+              icon="💼"
+            />
+            <FilterLink 
+              label="Private-B" 
+              toParams={{ ...queryParams, insurance: 'Private-B' }} 
+              active={queryParams.insurance === 'Private-B'}
+              icon="💼"
+            />
+          </div>
+        </div>
+
+        {/* Results Count */}
+        {!loading && (
+          <div className="mb-4 text-gray-600">
+            Found <span className="font-semibold text-primary-600">{items.length}</span> {items.length === 1 ? 'pharmacy' : 'pharmacies'}
+            {queryParams.q && ` with "${queryParams.q}"`}
+            {queryParams.loc && ` in ${queryParams.loc}`}
+          </div>
+        )}
+
+        {/* Map View */}
+        {items.length > 0 && (
+          <div className="mb-8">
+            <div className="card p-0 overflow-hidden">
+              <div className="p-4 border-b bg-primary-50">
+                <h3 className="font-semibold text-gray-900">📍 Pharmacy Locations</h3>
+              </div>
+              <MapView markers={items.map(p => ({ id: p.id, name: p.name, lat: p.lat, lng: p.lng }))} height={400} />
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+            <p className="mt-4 text-gray-600">Searching pharmacies...</p>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="card text-center py-12">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No pharmacies found</h3>
+            <p className="text-gray-600 mb-4">Try adjusting your search criteria or filters.</p>
+            <button 
+              onClick={() => navigate('/')} 
+              className="btn-primary"
+            >
+              Back to Home
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map((p) => {
+              const matchingMedicines = queryParams.q 
+                ? p.stocks.filter(s => s.name.toLowerCase().includes((queryParams.q || '').toLowerCase()))
+                : [];
+              const hasStock = matchingMedicines.some(m => m.quantity > 0);
+
+              return (
+                <div key={p.id} className="card hover:shadow-2xl transition-all duration-200">
+                  {/* Pharmacy Image */}
+                  <div className="relative h-48 bg-gradient-to-br from-primary-400 to-pharmacy-400 rounded-lg mb-4 overflow-hidden">
+                    <img 
+                      src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=300&fit=crop&q=80" 
+                      alt={p.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    <div className="absolute top-3 right-3">
+                      {p.delivery && (
+                        <span className="bg-pharmacy-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+                          🚚 Delivery
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Pharmacy Info */}
+                  <div className="space-y-3">
+                    <div>
+                      <Link to={`/pharmacies/${p.id}`} className="text-xl font-bold text-primary-700 hover:text-primary-800 transition-colors">
+                        {p.name}
+                      </Link>
+                      <p className="text-sm text-gray-600 mt-1">📍 {p.sector}</p>
+                    </div>
+
+                    {/* Insurance Badges */}
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 mb-2">Insurance Accepted:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {p.accepts.map((ins) => (
+                          <span 
+                            key={ins} 
+                            className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full font-medium"
+                          >
+                            {ins}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Medicine Availability */}
+                    {queryParams.q && matchingMedicines.length > 0 && (
+                      <div className="border-t pt-3">
+                        <p className="text-xs font-semibold text-gray-700 mb-2">Medicine Availability:</p>
+                        <div className="space-y-2">
+                          {matchingMedicines.map((med) => (
+                            <div key={med.id} className="space-y-1">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="font-medium text-gray-900">{med.name} {med.strength}</span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                  med.quantity > 0 
+                                    ? 'bg-pharmacy-100 text-pharmacy-700' 
+                                    : 'bg-red-100 text-red-700'
+                                }`}>
+                                  {med.quantity > 0 ? `✓ ${med.quantity} in stock` : 'Out of stock'}
+                                </span>
+                              </div>
+                              {med.quantity > 0 && (
+                                <p className="text-xs text-primary-600 font-semibold">
+                                  {med.priceRWF.toLocaleString()} RWF
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                      <Link 
+                        to={`/pharmacies/${p.id}`} 
+                        className="flex-1 btn-primary text-center text-sm py-2"
+                      >
+                        View Details
+                      </Link>
+                      {hasStock && (
+                        <Link 
+                          to={`/pharmacies/${p.id}`} 
+                          className="flex-1 btn-secondary text-center text-sm py-2 border-pharmacy-600 text-pharmacy-600 hover:bg-pharmacy-50"
+                        >
+                          Order Now
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FilterLink({ label, toParams, active, icon }: { 
+  label: string; 
+  toParams: Record<string, string | undefined>; 
+  active: boolean;
+  icon?: string;
+}) {
+  const search = new URLSearchParams();
+  if (toParams.q) search.set('q', toParams.q);
+  if (toParams.loc) search.set('loc', toParams.loc);
+  if (toParams.insurance) search.set('insurance', toParams.insurance);
+  const to = `/pharmacies?${search.toString()}`;
+  
+  return (
+    <Link 
+      to={to} 
+      className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+        active 
+          ? 'bg-primary-600 text-white shadow-md' 
+          : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-primary-400 hover:bg-primary-50'
+      }`}
+    >
+      {icon && <span className="mr-2">{icon}</span>}
+      {label}
+    </Link>
+  );
+}
+
+
