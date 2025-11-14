@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getPharmacy } from '@/services/api';
 import { useCartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
 import { MapView } from '@/ui/MapView';
 
 export function PharmacyDetail() {
@@ -10,6 +11,7 @@ export function PharmacyDetail() {
   const [pharmacy, setPharmacy] = useState<any>();
   const [loading, setLoading] = useState(true);
   const addToCart = useCartStore(s => s.add);
+  const { user } = useAuthStore();
   const [qtyByMed, setQtyByMed] = useState<Record<string, number>>({});
   const [addedToCart, setAddedToCart] = useState<Record<string, boolean>>({});
 
@@ -20,6 +22,18 @@ export function PharmacyDetail() {
   }, [id]);
 
   const handleAddToCart = (stock: any) => {
+    // Check authentication
+    if (!user) {
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    // Don't allow pharmacies to add to cart
+    if (user.role === 'pharmacy') {
+      alert('Pharmacy accounts cannot place orders. Please use a regular user account.');
+      return;
+    }
+
     addToCart({
       pharmacyId: pharmacy.id,
       medicineId: stock.id,

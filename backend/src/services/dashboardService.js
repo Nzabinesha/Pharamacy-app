@@ -58,7 +58,19 @@ export function getPharmacyOrders(pharmacyId, status = null) {
   
   let query = `
     SELECT 
-      o.*,
+      o.id,
+      o.pharmacy_id,
+      o.customer_name,
+      o.customer_email,
+      o.customer_phone,
+      o.total_rwf,
+      o.status,
+      o.prescription_status,
+      o.prescription_file,
+      o.delivery,
+      o.delivery_address,
+      o.created_at,
+      o.updated_at,
       GROUP_CONCAT(
         m.name || ' (' || oi.quantity || 'x)'
       ) as items
@@ -104,6 +116,7 @@ export function getPharmacyOrders(pharmacyId, status = null) {
       total: order.total_rwf,
       status: order.status,
       prescriptionStatus: order.prescription_status,
+      prescriptionFile: order.prescription_file,
       delivery: order.delivery === 1,
       address: order.delivery_address,
       createdAt: order.created_at,

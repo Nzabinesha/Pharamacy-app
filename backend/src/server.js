@@ -3,6 +3,7 @@ import cors from 'cors';
 import { pharmaciesRouter } from './routes/pharmacies.js';
 import { authRouter } from './routes/auth.js';
 import { dashboardRouter } from './routes/dashboard.js';
+import { ordersRouter } from './routes/orders.js';
 import { initializeDatabase } from './database/schema.js';
 
 const app = express();
@@ -82,6 +83,7 @@ app.get('/api-docs', (req, res) => {
 app.use('/api/pharmacies', pharmaciesRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/orders', ordersRouter);
 
 // 404 handler
 app.use((req, res) => {

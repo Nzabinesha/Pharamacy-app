@@ -30,6 +30,7 @@ export interface Order {
   total: number;
   status: 'pending' | 'confirmed' | 'processing' | 'ready' | 'delivered' | 'cancelled';
   prescriptionStatus: 'pending' | 'verified' | 'rejected';
+  prescriptionFile?: string;
   delivery: boolean;
   address?: string;
   createdAt: string;

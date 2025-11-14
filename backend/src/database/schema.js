@@ -103,6 +103,7 @@ export function initializeDatabase() {
       total_rwf REAL NOT NULL,
       status TEXT DEFAULT 'pending',
       prescription_status TEXT DEFAULT 'pending',
+      prescription_file TEXT,
       delivery BOOLEAN DEFAULT 0,
       delivery_address TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

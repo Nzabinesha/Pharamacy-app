@@ -195,19 +195,75 @@ export function PharmacyDashboard() {
                           ✓ Prescription Verified
                         </span>
                       )}
+                      {order.prescriptionStatus === 'rejected' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                          ✗ Prescription Rejected
+                        </span>
+                      )}
                     </div>
                     <div className="space-y-2 text-sm text-gray-700">
                       <p><span className="font-semibold">Customer:</span> {order.customerName}</p>
+                      {order.customerEmail && (
+                        <p><span className="font-semibold">Email:</span> {order.customerEmail}</p>
+                      )}
+                      {order.customerPhone && (
+                        <p><span className="font-semibold">Phone:</span> {order.customerPhone}</p>
+                      )}
                       <p><span className="font-semibold">Items:</span> {order.items.join(', ')}</p>
                       <p><span className="font-semibold">Total:</span> {order.total.toLocaleString()} RWF</p>
                       <p><span className="font-semibold">Delivery:</span> {order.delivery ? `Yes - ${order.address}` : 'No (Pickup)'}</p>
                       <p><span className="font-semibold">Created:</span> {order.createdAt}</p>
+                      
+                      {/* Prescription Display */}
+                      {order.prescriptionFile && (
+                        <div className="mt-4 pt-4 border-t">
+                          <p className="font-semibold text-gray-900 mb-2">📄 Prescription:</p>
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            {order.prescriptionFile.startsWith('data:image') || order.prescriptionFile.startsWith('http') ? (
+                              <div className="space-y-2">
+                                <img 
+                                  src={order.prescriptionFile} 
+                                  alt="Prescription" 
+                                  className="max-w-full h-auto rounded border border-gray-300 cursor-pointer hover:opacity-90 transition-opacity"
+                                  onClick={() => window.open(order.prescriptionFile, '_blank')}
+                                />
+                                <button
+                                  onClick={() => window.open(order.prescriptionFile, '_blank')}
+                                  className="text-sm text-primary-600 hover:text-primary-700 underline"
+                                >
+                                  View Full Size →
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-3">
+                                <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900">Prescription File</p>
+                                  <p className="text-xs text-gray-600">Click to view</p>
+                                </div>
+                                <button
+                                  onClick={() => window.open(order.prescriptionFile, '_blank')}
+                                  className="btn-secondary text-xs py-1 px-3"
+                                >
+                                  View
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
                   <div className="flex flex-col gap-2">
-                    {order.prescriptionStatus === 'pending' && (
+                    {order.prescriptionStatus === 'pending' && order.prescriptionFile && (
                       <>
+                        <div className="mb-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-xs font-semibold text-yellow-800 mb-1">⚠️ Action Required</p>
+                          <p className="text-xs text-yellow-700">Please review the prescription above and verify or reject it.</p>
+                        </div>
                         <button
                           onClick={() => handleUpdatePrescriptionStatus(order.id, 'verified')}
                           disabled={updating === order.id}
@@ -223,6 +279,11 @@ export function PharmacyDashboard() {
                           ✗ Reject Prescription
                         </button>
                       </>
+                    )}
+                    {order.prescriptionStatus === 'pending' && !order.prescriptionFile && (
+                      <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                        <p className="text-xs text-gray-600">Waiting for prescription upload...</p>
+                      </div>
                     )}
                     {order.status === 'pending' && order.prescriptionStatus === 'verified' && (
                       <button

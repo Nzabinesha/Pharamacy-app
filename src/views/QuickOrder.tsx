@@ -78,6 +78,18 @@ export function QuickOrder() {
   const handleOrder = () => {
     if (!medicine || !pharmacy) return;
 
+    // Check authentication
+    if (!user) {
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    // Don't allow pharmacies to order
+    if (user.role === 'pharmacy') {
+      setError('Pharmacy accounts cannot place orders');
+      return;
+    }
+
     if (medicine.quantity < quantity) {
       setError(`Only ${medicine.quantity} available in stock`);
       return;

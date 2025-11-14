@@ -36,15 +36,71 @@ export function Prescription() {
 
   async function handlePlaceOrder(e: React.FormEvent) {
     e.preventDefault();
-    if (status !== 'approved' && items.some(item => item.requiresPrescription)) {
-      alert('Please upload and verify your prescription first');
+    
+    // Check if prescription is required and uploaded
+    const requiresPrescription = items.some(item => item.requiresPrescription);
+    if (requiresPrescription && !filePreview && !fileName) {
+      alert('Please upload your prescription first');
       return;
     }
     
     setPlacing(true);
-    await new Promise(r => setTimeout(r, 1000));
-    setPlacing(false);
-    navigate('/notifications');
+    
+    try {
+      // Get pharmacy ID from first item (assuming all items are from same pharmacy)
+      const pharmacyId = items[0]?.pharmacyId;
+      if (!pharmacyId) {
+        throw new Error('Pharmacy ID not found');
+      }
+
+      // Get auth token
+      const authStorage = localStorage.getItem('auth-storage');
+      let token = null;
+      if (authStorage) {
+        try {
+          const parsed = JSON.parse(authStorage);
+          token = parsed.state?.token;
+        } catch (e) {
+          // Ignore
+        }
+      }
+
+      // Create order
+      const response = await fetch('http://localhost:3000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify({
+          pharmacyId,
+          items: items.map(item => ({
+            name: item.name,
+            medicineId: item.medicineId,
+            quantity: item.quantity
+          })),
+          delivery,
+          deliveryAddress: delivery ? address : null,
+          prescriptionFile: filePreview || null
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Clear cart
+        clear();
+        // Navigate to success page
+        navigate('/notifications');
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to place order');
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert(error instanceof Error ? error.message : 'Failed to place order. Please try again.');
+    } finally {
+      setPlacing(false);
+    }
   }
 
   const requiresPrescription = items.some(item => item.requiresPrescription === true);

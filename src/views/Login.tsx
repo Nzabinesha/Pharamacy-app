@@ -1,9 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 
 export function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const login = useAuthStore(state => state.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +18,9 @@ export function Login() {
 
     try {
       await login(email, password);
-      navigate('/');
+      // Redirect to the original page or home
+      const redirect = searchParams.get('redirect');
+      navigate(redirect || '/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
     } finally {

@@ -32,6 +32,25 @@ function ProtectedPharmacyRoute() {
   return <PharmacyDashboard />;
 }
 
+// Protected route component for user authentication (ordering)
+function ProtectedUserRoute({ children }: { children: React.ReactElement }) {
+  const user = useAuthStore(state => state.user);
+  const isAuthenticated = user !== null;
+  const location = window.location.pathname;
+
+  if (!isAuthenticated) {
+    // Redirect to login with return URL
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location)}`} replace />;
+  }
+
+  // Don't allow pharmacies to place orders
+  if (user?.role === 'pharmacy') {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -40,10 +59,22 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: 'pharmacies', element: <Pharmacies /> },
       { path: 'pharmacies/:id', element: <PharmacyDetail /> },
-      { path: 'order/:pharmacyId/:medicineId', element: <QuickOrder /> },
-      { path: 'cart', element: <Cart /> },
-      { path: 'checkout', element: <Checkout /> },
-      { path: 'prescription', element: <Prescription /> },
+      { 
+        path: 'order/:pharmacyId/:medicineId', 
+        element: <ProtectedUserRoute><QuickOrder /></ProtectedUserRoute>
+      },
+      { 
+        path: 'cart', 
+        element: <ProtectedUserRoute><Cart /></ProtectedUserRoute>
+      },
+      { 
+        path: 'checkout', 
+        element: <ProtectedUserRoute><Checkout /></ProtectedUserRoute>
+      },
+      { 
+        path: 'prescription', 
+        element: <ProtectedUserRoute><Prescription /></ProtectedUserRoute>
+      },
       { 
         path: 'dashboard', 
         element: <ProtectedPharmacyRoute />
