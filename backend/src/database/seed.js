@@ -20,12 +20,12 @@ const pharmacies = [
   {
     id: 'ph-001',
     name: 'Adrenaline Pharmacy Ltd',
-    sector: 'Kabeza',
-    address: 'Kigali - Kabeza (Kabeza Modern Market), Rwanda',
+    sector: 'Remera',
+    address: 'Kigali - Remera, Rwanda',
     phone: '+250785636683',
     delivery: true,
-    lat: -1.9500,
-    lng: 30.0550,
+    lat: -1.9570,
+    lng: 30.1220,
     insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
     stocks: [
       'Glucose (5% w/v)', 'Ceftriaxone + Sulbactam', 'Basiliximab', 'Miconazole Nitrate', 
@@ -38,8 +38,8 @@ const pharmacies = [
   {
     id: 'ph-002',
     name: 'PHARMACIE PHARMALAB',
-    sector: 'Kigali',
-    address: '25W6+RG9, Kigali, Rwanda',
+    sector: 'Kacyiru',
+    address: '25W6+RG9, Kacyiru, Kigali, Rwanda',
     phone: '+250788477537',
     delivery: true,
     lat: -1.9447,
@@ -56,8 +56,8 @@ const pharmacies = [
   {
     id: 'ph-003',
     name: 'Pharmacie Conseil',
-    sector: 'Kigali',
-    address: 'KN 78 St, Kigali, Rwanda',
+    sector: 'Kinyinya',
+    address: 'KN 78 St, Kinyinya, Kigali, Rwanda',
     phone: '+250788380066',
     delivery: true,
     lat: -1.9441,
@@ -79,8 +79,8 @@ const pharmacies = [
   {
     id: 'ph-004',
     name: 'AfriChem Rwanda Ltd',
-    sector: 'Kigali',
-    address: 'KN 1 RD 67, Kigali, Rwanda',
+    sector: 'Gikondo',
+    address: 'KN 1 RD 67, Gikondo, Kigali, Rwanda',
     phone: '+250788300784',
     delivery: true,
     description: 'Leading supplier of quality chemical products',
@@ -98,8 +98,8 @@ const pharmacies = [
   {
     id: 'ph-005',
     name: 'PHARMACIE CONTINENTALE',
-    sector: 'Kigali',
-    address: 'KG 1 Ave, Kigali, Rwanda',
+    sector: 'Kimihurura',
+    address: 'KG 1 Ave, Kimihurura, Kigali, Rwanda',
     phone: '+250788306878',
     delivery: true,
     description: 'Quality pharmaceuticals and healthcare services in Kigali',
@@ -122,8 +122,8 @@ const pharmacies = [
   {
     id: 'ph-006',
     name: 'Kipharma',
-    sector: 'Nyarugenge',
-    address: 'KN 74 Street, Nyarugenge, Kigali, Rwanda',
+    sector: 'Gisozi',
+    address: 'KN 74 Street, Gisozi, Kigali, Rwanda',
     phone: '+250252572944',
     delivery: true,
     lat: -1.9440,
@@ -140,8 +140,8 @@ const pharmacies = [
   {
     id: 'ph-007',
     name: 'Oasis Pharmacy',
-    sector: 'Kigali',
-    address: '24FM+3P4, Kigali, Rwanda',
+    sector: 'Masoro',
+    address: '24FM+3P4, Masoro, Kigali, Rwanda',
     phone: '+250781958800',
     delivery: true,
     lat: -1.9450,
@@ -152,6 +152,202 @@ const pharmacies = [
       'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
       'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
       'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol'
+    ]
+  },
+  {
+    id: 'ph-008',
+    name: 'Anik Industries',
+    sector: 'Kacyiru',
+    address: 'Bp. 211, Kacyiru, Kigali, Rwanda',
+    phone: '+250252572164',
+    delivery: true,
+    description: 'Leading provider of quality industrial products',
+    lat: -1.9460,
+    lng: 30.0590,
+    insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-009',
+    name: 'DEPOT PHARMACEUTIQUE',
+    sector: 'Kimironko',
+    address: 'Kimironko, P.O.Box 2770, Kigali, Rwanda',
+    phone: '+250252577571',
+    delivery: true,
+    description: 'Quality pharmaceuticals and healthcare services provider',
+    lat: -1.9440,
+    lng: 30.0620,
+    insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
+    stocks: [
+      'Hydrochloride', 'Rifampin + Isoniazid', 'Etoricoxib', 'Phloroglucinol + Trimethyl Phloroglucinol', 
+      'Zinc Sulfate Monohydrate', 'Magnesium Pidolate', 'Ofloxacin + Ornidazole', 'Metronidazole', 
+      'Artesunate', 'Itraconazole', 'Febuxostat', 'Cyproheptadine Hydrochloride + Lysine Hydrochloride',
+      'Artemether + Lumefantrine', 'Atorvastatin + Ezetimibe',
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-010',
+    name: 'BIOPHARMACIA',
+    sector: 'Kacyiru',
+    address: 'Kacyiru, P.O.Box 2513, Kigali, Rwanda',
+    phone: '+250252504086',
+    delivery: true,
+    description: 'Innovative solutions for healthcare and pharmaceuticals',
+    lat: -1.9435,
+    lng: 30.0615,
+    insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-011',
+    name: 'Unipharma Kipharma',
+    sector: 'Remera',
+    address: 'KN 74 Street, Remera, Kigali, Rwanda',
+    phone: '+250252572944',
+    delivery: true,
+    lat: -1.9440,
+    lng: 30.0620,
+    insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
+    stocks: [
+      'Hydrochloride', 'Rifampin + Isoniazid', 'Etoricoxib', 'Phloroglucinol + Trimethyl Phloroglucinol', 
+      'Zinc Sulfate Monohydrate', 'Magnesium Pidolate', 'Ofloxacin + Ornidazole', 'Metronidazole', 
+      'Artesunate', 'Itraconazole', 'Febuxostat', 'Cyproheptadine Hydrochloride + Lysine Hydrochloride',
+      'Artemether + Lumefantrine', 'Atorvastatin + Ezetimibe'
+    ]
+  },
+  {
+    id: 'ph-012',
+    name: 'Lifecare',
+    sector: 'Kimironko',
+    address: 'Bp. 5000, Kimironko, Kigali, Rwanda',
+    phone: '+250252501313',
+    delivery: true,
+    lat: -1.9470,
+    lng: 30.0580,
+    insurance: [
+      'Sanlam Allianz Life Insurance Plc', 'SAHAM ASSURANCE RWANDA', 'Sonarwa', 
+      'Medical Insurance Scheme Of University Of Rwanda', 'Zion Insurance Brokers Ltd'
+    ],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-013',
+    name: 'Conseil Pharmacy',
+    sector: 'Remera',
+    address: 'Bp. 1072, Remera, Kigali, Rwanda',
+    phone: '+250252572374',
+    delivery: true,
+    lat: -1.9455,
+    lng: 30.0595,
+    insurance: [
+      'Sanlam Allianz Life Insurance Plc', 'SAHAM ASSURANCE RWANDA', 'Sonarwa', 
+      'Medical Insurance Scheme Of University Of Rwanda', 'Zion Insurance Brokers Ltd'
+    ],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-014',
+    name: 'DEPOT PHARMACEUTIQUE ET MATERIEL MEDICAL KALISIMBI',
+    sector: 'Ndera',
+    address: 'Ndera, P.O.Box 4526, Kigali, Rwanda',
+    phone: '+250252202549',
+    delivery: true,
+    description: 'Quality pharmaceuticals and medical supplies distributor',
+    lat: -1.9430,
+    lng: 30.0610,
+    insurance: [
+      'Sanlam Allianz Life Insurance Plc', 'SAHAM ASSURANCE RWANDA', 'Sonarwa', 
+      'Medical Insurance Scheme Of University Of Rwanda', 'Zion Insurance Brokers Ltd'
+    ],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-015',
+    name: 'Moderne',
+    sector: 'Nyamirambo',
+    address: 'Nyamirambo, Kigali, Rwanda',
+    phone: '+250788000000',
+    delivery: true,
+    lat: -1.9420,
+    lng: 30.0600,
+    insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-016',
+    name: 'Opa Pharmacy',
+    sector: 'Remera',
+    address: 'Remera, Kigali, Rwanda',
+    phone: '+250788000001',
+    delivery: true,
+    lat: -1.9560,
+    lng: 30.1210,
+    insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
+    ]
+  },
+  {
+    id: 'ph-017',
+    name: "Sara's Pharmacy",
+    sector: 'Kimironko',
+    address: 'Kimironko, Kigali, Rwanda',
+    phone: '+250788000002',
+    delivery: true,
+    lat: -1.9465,
+    lng: 30.0585,
+    insurance: ['Britam', 'Eden Care Medical', 'Radiant Insurance', 'Military Medical Insurance', 'Old Mutual Insurance Rwanda', 'Prime Insurance'],
+    stocks: [
+      'Cyclobenzaprine Hydrochloride', 'Azithromycin (suspension)', 'Secnidazole', 
+      'Omeprazole', 'Levonorgestrel', 'Erythromycin', 'Paracetamol', 'Methyldopa', 
+      'Ibuprofen', 'Linagliptin', 'Bisoprolol Fumarate', 'Clobetasol Propionate', 
+      'Tramadol Hydrochloride', 'Methocarbamol + Paracetamol', 'Deflazacort', 
+      'Nebivolol Hydrochlorothiazide', 'Budesonide'
     ]
   }
 ];
