@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "node src/server.js",
     "start": "node src/server.js",
-    "seed": "node src/database/seed.js"
+    "seed": "node src/database/seed.js",
+    "link-pharmacies": "node src/scripts/linkPharmacyUsers.js",
+    "create-pharmacy-users": "node src/scripts/createPharmacyUsers.js"
   },
   "keywords": [
     "pharmacy",

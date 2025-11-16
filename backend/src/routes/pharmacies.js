@@ -1,5 +1,6 @@
 import express from 'express';
 import { searchPharmacies, getPharmacyById } from '../services/pharmacyService.js';
+import { getDb } from '../database/db.js';
 
 export const pharmaciesRouter = express.Router();
 
@@ -12,6 +13,23 @@ pharmaciesRouter.get('/', (req, res) => {
   } catch (error) {
     console.error('Error searching pharmacies:', error);
     res.status(500).json({ error: 'Failed to search pharmacies', message: error.message });
+  }
+});
+
+// GET /api/pharmacies/list/all - Get all pharmacies (for linking during signup)
+// Must come before /:id route
+pharmaciesRouter.get('/list/all', (req, res) => {
+  try {
+    const db = getDb();
+    const pharmacies = db.prepare(`
+      SELECT id, name, sector, phone
+      FROM pharmacies
+      ORDER BY name
+    `).all();
+    res.json(pharmacies);
+  } catch (error) {
+    console.error('Error getting pharmacies list:', error);
+    res.status(500).json({ error: 'Failed to get pharmacies', message: error.message });
   }
 });
 

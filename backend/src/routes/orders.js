@@ -31,18 +31,125 @@ ordersRouter.post('/', authenticateToken, async (req, res) => {
     
     for (const item of items) {
       // Get medicine price from pharmacy stock
-      const stock = db.prepare(`
-        SELECT ps.price_rwf, ps.quantity, m.id as medicine_id
-        FROM pharmacy_stocks ps
-        JOIN medicines m ON ps.medicine_id = m.id
-        WHERE ps.pharmacy_id = ? AND (m.name LIKE ? OR ps.id = ?)
-        LIMIT 1
-      `).get(pharmacyId, `%${item.name}%`, item.medicineId);
+      // Try multiple matching strategies
+      let stock = null;
+      
+      // Extract numeric ID from "med-123" format if present
+      let numericMedicineId = null;
+      if (item.medicineId) {
+        const match = item.medicineId.toString().match(/(\d+)$/);
+        if (match) {
+          numericMedicineId = parseInt(match[1]);
+        } else if (!isNaN(parseInt(item.medicineId))) {
+          numericMedicineId = parseInt(item.medicineId);
+        }
+      }
+      
+      // First, try by medicineId (numeric ID from database)
+      if (numericMedicineId) {
+        stock = db.prepare(`
+          SELECT ps.price_rwf, ps.quantity, m.id as medicine_id, m.name as medicine_name
+          FROM pharmacy_stocks ps
+          JOIN medicines m ON ps.medicine_id = m.id
+          WHERE ps.pharmacy_id = ? AND m.id = ?
+        `).get(pharmacyId, numericMedicineId);
+      }
+      
+      // If not found, try by name (case-insensitive, flexible matching)
+      if (!stock && item.name) {
+        // Clean the name for matching (remove extra spaces, normalize)
+        const cleanName = item.name.trim().replace(/\s+/g, ' ');
+        
+        // Extract base name and strength if present (e.g., "Glucose 5% w/v" -> "Glucose" and "5% w/v")
+        const nameParts = cleanName.split(/\s+(?=\d|%)/); // Split on space before numbers or %
+        const baseName = nameParts[0]?.trim() || cleanName;
+        const strengthPart = nameParts[1]?.trim() || '';
+        
+        // Try exact match first (case-insensitive)
+        stock = db.prepare(`
+          SELECT ps.price_rwf, ps.quantity, m.id as medicine_id, m.name as medicine_name
+          FROM pharmacy_stocks ps
+          JOIN medicines m ON ps.medicine_id = m.id
+          WHERE ps.pharmacy_id = ? AND LOWER(TRIM(m.name)) = LOWER(?)
+        `).get(pharmacyId, cleanName);
+        
+        // If not found, try matching base name only
+        if (!stock && baseName) {
+          stock = db.prepare(`
+            SELECT ps.price_rwf, ps.quantity, m.id as medicine_id, m.name as medicine_name
+            FROM pharmacy_stocks ps
+            JOIN medicines m ON ps.medicine_id = m.id
+            WHERE ps.pharmacy_id = ? AND LOWER(TRIM(m.name)) = LOWER(?)
+          `).get(pharmacyId, baseName);
+        }
+        
+        // If still not found, try matching with strength included (various formats)
+        if (!stock) {
+          stock = db.prepare(`
+            SELECT ps.price_rwf, ps.quantity, m.id as medicine_id, m.name as medicine_name
+            FROM pharmacy_stocks ps
+            JOIN medicines m ON ps.medicine_id = m.id
+            WHERE ps.pharmacy_id = ? AND (
+              LOWER(TRIM(m.name || ' ' || COALESCE(m.strength, ''))) = LOWER(?) OR
+              LOWER(TRIM(m.name || ' (' || COALESCE(m.strength, '') || ')')) = LOWER(?) OR
+              LOWER(TRIM(COALESCE(m.strength, '') || ' ' || m.name)) = LOWER(?)
+            )
+            LIMIT 1
+          `).get(pharmacyId, cleanName, cleanName, cleanName);
+        }
+        
+        // If still not found, try flexible partial match (remove special chars)
+        if (!stock) {
+          // Normalize: remove special characters for fuzzy matching
+          const normalize = (str) => str.replace(/[()%]/g, '').trim().toLowerCase();
+          const normalizedSearch = normalize(cleanName);
+          
+          // Get all stocks for this pharmacy and match manually (more flexible)
+          const allStocks = db.prepare(`
+            SELECT ps.price_rwf, ps.quantity, m.id as medicine_id, m.name as medicine_name, m.strength
+            FROM pharmacy_stocks ps
+            JOIN medicines m ON ps.medicine_id = m.id
+            WHERE ps.pharmacy_id = ?
+          `).all(pharmacyId);
+          
+          // Find best match
+          for (const s of allStocks) {
+            const dbName = normalize(s.medicine_name || '');
+            const dbFull = normalize((s.medicine_name || '') + ' ' + (s.strength || ''));
+            const dbFullParen = normalize((s.medicine_name || '') + ' (' + (s.strength || '') + ')');
+            
+            if (dbName === normalizedSearch || 
+                dbFull === normalizedSearch || 
+                dbFullParen === normalizedSearch ||
+                dbName.includes(normalizedSearch) || 
+                normalizedSearch.includes(dbName) ||
+                (baseName && dbName === normalize(baseName))) {
+              stock = s;
+              break;
+            }
+          }
+        }
+      }
       
       if (!stock) {
+        // Debug: Log available medicines for this pharmacy
+        const availableMedicines = db.prepare(`
+          SELECT m.id, m.name, m.strength, ps.quantity
+          FROM pharmacy_stocks ps
+          JOIN medicines m ON ps.medicine_id = m.id
+          WHERE ps.pharmacy_id = ?
+        `).all(pharmacyId);
+        
+        console.error(`[Order Error] Medicine not found:`, {
+          searched: item.name,
+          medicineId: item.medicineId,
+          pharmacyId: pharmacyId,
+          available: availableMedicines.map(m => `${m.name} ${m.strength || ''}`.trim())
+        });
+        
         return res.status(400).json({ 
           error: 'Invalid item', 
-          message: `Medicine ${item.name} not found in pharmacy stock` 
+          message: `Medicine "${item.name}" not found in pharmacy stock. Please verify the medicine is available at this pharmacy.` 
         });
       }
       

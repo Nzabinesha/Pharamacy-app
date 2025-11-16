@@ -1,7 +1,7 @@
 // Dashboard API for pharmacy management
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-export async function getPharmacyStock(pharmacyId: string, token: string) {
+export async function getPharmacyStock(token: string) {
   try {
     const response = await fetch(`${API_BASE}/dashboard/stock`, {
       headers: {
@@ -18,16 +18,10 @@ export async function getPharmacyStock(pharmacyId: string, token: string) {
   }
 }
 
-export async function updateStock(
-  pharmacyId: string,
-  medicineId: string,
-  quantity: number,
-  priceRWF: number,
-  token: string
-) {
+export async function addStock(medicineId: number, quantity: number, priceRWF: number, token: string) {
   try {
     const response = await fetch(`${API_BASE}/dashboard/stock`, {
-      method: 'PUT',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
@@ -37,16 +31,77 @@ export async function updateStock(
     if (response.ok) {
       return await response.json();
     }
-    throw new Error('Failed to update stock');
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to add stock');
+  } catch (error) {
+    console.error('Error adding stock:', error);
+    throw error;
+  }
+}
+
+export async function updateStock(medicineId: number, quantity: number, priceRWF: number, token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/stock/${medicineId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quantity, priceRWF }),
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to update stock');
   } catch (error) {
     console.error('Error updating stock:', error);
     throw error;
   }
 }
 
-export async function getPharmacyOrders(token: string) {
+export async function deleteStock(medicineId: number, token: string) {
   try {
-    const response = await fetch(`${API_BASE}/dashboard/orders`, {
+    const response = await fetch(`${API_BASE}/dashboard/stock/${medicineId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to delete stock');
+  } catch (error) {
+    console.error('Error deleting stock:', error);
+    throw error;
+  }
+}
+
+export async function getAllMedicines(token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/medicines`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    throw new Error('Failed to fetch medicines');
+  } catch (error) {
+    console.error('Error fetching medicines:', error);
+    throw error;
+  }
+}
+
+export async function getPharmacyOrders(token: string, status?: string) {
+  try {
+    const url = status 
+      ? `${API_BASE}/dashboard/orders?status=${status}`
+      : `${API_BASE}/dashboard/orders`;
+    const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -57,6 +112,139 @@ export async function getPharmacyOrders(token: string) {
     throw new Error('Failed to fetch orders');
   } catch (error) {
     console.error('Error fetching orders:', error);
+    throw error;
+  }
+}
+
+export async function getOrderDetails(orderId: string, token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/orders/${orderId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    throw new Error('Failed to fetch order details');
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+    throw error;
+  }
+}
+
+export async function updateOrderStatus(orderId: string, status: string, token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/orders/${orderId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status }),
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to update order status');
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    throw error;
+  }
+}
+
+export async function updatePrescriptionStatus(orderId: string, prescriptionStatus: string, token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/orders/${orderId}/prescription`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ prescriptionStatus }),
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to update prescription status');
+  } catch (error) {
+    console.error('Error updating prescription status:', error);
+    throw error;
+  }
+}
+
+export async function getPharmacyInsurance(token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/insurance`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    throw new Error('Failed to fetch insurance');
+  } catch (error) {
+    console.error('Error fetching insurance:', error);
+    throw error;
+  }
+}
+
+export async function getAllInsuranceTypes(token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/insurance/available`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    throw new Error('Failed to fetch insurance types');
+  } catch (error) {
+    console.error('Error fetching insurance types:', error);
+    throw error;
+  }
+}
+
+export async function addInsurancePartner(insuranceId: number, token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/insurance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ insuranceId }),
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to add insurance partner');
+  } catch (error) {
+    console.error('Error adding insurance partner:', error);
+    throw error;
+  }
+}
+
+export async function removeInsurancePartner(insuranceId: number, token: string) {
+  try {
+    const response = await fetch(`${API_BASE}/dashboard/insurance/${insuranceId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to remove insurance partner');
+  } catch (error) {
+    console.error('Error removing insurance partner:', error);
     throw error;
   }
 }
