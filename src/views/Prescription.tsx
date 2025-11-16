@@ -7,7 +7,7 @@ export function Prescription() {
   const { items, total, clear } = useCartStore();
   const [fileName, setFileName] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'uploading' | 'verifying' | 'approved' | 'rejected'>('idle');
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'pending' | 'approved' | 'rejected'>('idle');
   const [delivery, setDelivery] = useState(true);
   const [address, setAddress] = useState('');
   const [placing, setPlacing] = useState(false);
@@ -28,9 +28,7 @@ export function Prescription() {
     }
     
     await new Promise(r => setTimeout(r, 800));
-    setStatus('verifying');
-    await new Promise(r => setTimeout(r, 1500));
-    setStatus('approved');
+    setStatus('pending');
   }
 
   async function handlePlaceOrder(e: React.FormEvent) {
@@ -182,6 +180,7 @@ export function Prescription() {
                   <div className={`p-4 rounded-lg ${
                     status === 'approved' ? 'bg-pharmacy-50 border border-pharmacy-200' :
                     status === 'rejected' ? 'bg-red-50 border border-red-200' :
+                    status === 'pending' ? 'bg-yellow-50 border border-yellow-200' :
                     'bg-primary-50 border border-primary-200'
                   }`}>
                     <div className="flex items-center gap-3">
@@ -191,10 +190,15 @@ export function Prescription() {
                           <p className="text-primary-700 font-medium">Uploading prescription...</p>
                         </>
                       )}
-                      {status === 'verifying' && (
+                      {status === 'pending' && (
                         <>
-                          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary-600"></div>
-                          <p className="text-primary-700 font-medium">Verifying with pharmacy...</p>
+                          <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div>
+                            <p className="text-yellow-800 font-medium">Prescription uploaded successfully!</p>
+                            <p className="text-yellow-700 text-sm mt-1">Waiting for pharmacy approval. You can place your order now.</p>
+                          </div>
                         </>
                       )}
                       {status === 'approved' && (
@@ -203,6 +207,14 @@ export function Prescription() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <p className="text-pharmacy-700 font-medium">Prescription verified and approved!</p>
+                        </>
+                      )}
+                      {status === 'rejected' && (
+                        <>
+                          <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          <p className="text-red-700 font-medium">Prescription rejected. Please upload a valid prescription.</p>
                         </>
                       )}
                     </div>
@@ -287,8 +299,8 @@ export function Prescription() {
             <div className="space-y-3">
               <button
                 onClick={handlePlaceOrder}
-                disabled={placing || (requiresPrescription && status !== 'approved')}
-                className={`w-full btn-primary ${placing || (requiresPrescription && status !== 'approved') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={placing || (requiresPrescription && !filePreview && !fileName)}
+                className={`w-full btn-primary ${placing || (requiresPrescription && !filePreview && !fileName) ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {placing ? 'Placing Order...' : 'Place Order'}
               </button>
