@@ -25,9 +25,14 @@ export function RootLayout() {
                   Find Medicine
                 </Link>
                 {user && user.role !== 'pharmacy' && (
-                  <Link to="/cart" className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                    Cart
-                  </Link>
+                  <>
+                    <Link to="/cart" className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      Cart
+                    </Link>
+                    <Link to="/orders" className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      My Orders
+                    </Link>
+                  </>
                 )}
                 {user && user.role === 'pharmacy' && (
                   <Link to="/dashboard" className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">

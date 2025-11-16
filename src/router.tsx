@@ -13,6 +13,8 @@ import { Signup } from './views/Signup';
 import { PharmacyLogin } from './views/PharmacyLogin';
 import { PharmacySignup } from './views/PharmacySignup';
 import { QuickOrder } from './views/QuickOrder';
+import { Orders } from './views/Orders';
+import { ErrorPage } from './views/ErrorPage';
 import { useAuthStore } from './store/authStore';
 
 // Protected route component for pharmacy dashboard
@@ -53,6 +55,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Home /> },
       { path: 'pharmacies', element: <Pharmacies /> },
@@ -74,6 +77,14 @@ export const router = createBrowserRouter([
         element: <ProtectedUserRoute><Prescription /></ProtectedUserRoute>
       },
       { 
+        path: 'orders',
+        element: (
+          <ProtectedUserRoute>
+            <Orders />
+          </ProtectedUserRoute>
+        )
+      },
+      { 
         path: 'dashboard', 
         element: <ProtectedPharmacyRoute />
       },
@@ -81,7 +92,8 @@ export const router = createBrowserRouter([
       { path: 'login', element: <Login /> },
       { path: 'signup', element: <Signup /> },
       { path: 'pharmacy/login', element: <PharmacyLogin /> },
-      { path: 'pharmacy/signup', element: <PharmacySignup /> }
+      { path: 'pharmacy/signup', element: <PharmacySignup /> },
+      { path: '*', element: <ErrorPage /> }
     ]
   }
 ]);

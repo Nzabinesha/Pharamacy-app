@@ -150,3 +150,47 @@ export async function signupUser(
   return { user, token };
 }
 
+export interface OrderItem {
+  name: string;
+  strength?: string;
+  quantity: number;
+  priceRWF: number;
+  total: number;
+}
+
+export interface Order {
+  id: string;
+  pharmacyId: string;
+  pharmacyName: string;
+  pharmacyPhone: string;
+  pharmacyAddress: string;
+  items: OrderItem[];
+  totalRWF: number;
+  status: string;
+  prescriptionStatus?: string | null;
+  prescriptionFile?: string | null;
+  delivery: boolean;
+  deliveryAddress?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getUserOrders(token: string): Promise<Order[]> {
+  try {
+    const response = await fetch(`${API_BASE}/orders`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to fetch orders');
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    throw error;
+  }
+}
+

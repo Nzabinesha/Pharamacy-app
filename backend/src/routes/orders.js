@@ -237,3 +237,81 @@ ordersRouter.post('/', authenticateToken, async (req, res) => {
     });
   }
 });
+
+// GET /api/orders - Get user's orders
+ordersRouter.get('/', authenticateToken, async (req, res) => {
+  try {
+    const user = req.user;
+    const db = getDb();
+    
+    // Get all orders for this user (by email)
+    const orders = db.prepare(`
+      SELECT 
+        o.id,
+        o.pharmacy_id,
+        o.customer_name,
+        o.customer_email,
+        o.customer_phone,
+        o.total_rwf,
+        o.status,
+        o.prescription_status,
+        o.prescription_file,
+        o.delivery,
+        o.delivery_address,
+        o.created_at,
+        o.updated_at,
+        p.name as pharmacy_name,
+        p.phone as pharmacy_phone,
+        p.address as pharmacy_address
+      FROM orders o
+      JOIN pharmacies p ON o.pharmacy_id = p.id
+      WHERE o.customer_email = ?
+      ORDER BY o.created_at DESC
+    `).all(user.email);
+    
+    // Get order items for each order
+    const ordersWithItems = orders.map(order => {
+      const items = db.prepare(`
+        SELECT 
+          oi.quantity,
+          oi.price_rwf,
+          m.name as medicine_name,
+          m.strength as medicine_strength
+        FROM order_items oi
+        JOIN medicines m ON oi.medicine_id = m.id
+        WHERE oi.order_id = ?
+      `).all(order.id);
+      
+      return {
+        id: order.id,
+        pharmacyId: order.pharmacy_id,
+        pharmacyName: order.pharmacy_name,
+        pharmacyPhone: order.pharmacy_phone,
+        pharmacyAddress: order.pharmacy_address,
+        items: items.map(item => ({
+          name: item.medicine_name,
+          strength: item.medicine_strength || undefined,
+          quantity: item.quantity,
+          priceRWF: item.price_rwf,
+          total: item.price_rwf * item.quantity
+        })),
+        totalRWF: order.total_rwf,
+        status: order.status,
+        prescriptionStatus: order.prescription_status,
+        prescriptionFile: order.prescription_file,
+        delivery: order.delivery === 1,
+        deliveryAddress: order.delivery_address,
+        createdAt: order.created_at,
+        updatedAt: order.updated_at
+      };
+    });
+    
+    res.json(ordersWithItems);
+  } catch (error) {
+    console.error('Error getting user orders:', error);
+    res.status(500).json({ 
+      error: 'Failed to get orders', 
+      message: error.message 
+    });
+  }
+});
