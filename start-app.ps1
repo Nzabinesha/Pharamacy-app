@@ -53,14 +53,16 @@ Write-Host ""
 
 # Start backend in a new window
 Write-Host "Starting backend server on http://localhost:3000" -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PWD\backend'; Write-Host '🔧 Backend Server' -ForegroundColor Green; Write-Host 'Running on http://localhost:3000' -ForegroundColor Cyan; Write-Host ''; node src/server.js"
+$backendCommand = "cd '$PWD\backend'; Write-Host 'Backend Server' -ForegroundColor Green; Write-Host 'Running on http://localhost:3000' -ForegroundColor Cyan; Write-Host ''; node src/server.js"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendCommand
 
 # Wait a moment for backend to start
 Start-Sleep -Seconds 2
 
 # Start frontend in a new window
 Write-Host "Starting frontend server on http://localhost:5173" -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PWD'; Write-Host '🎨 Frontend Server' -ForegroundColor Green; Write-Host 'Running on http://localhost:5173' -ForegroundColor Cyan; Write-Host ''; npm run dev"
+$frontendCommand = "cd '$PWD'; Write-Host 'Frontend Server' -ForegroundColor Green; Write-Host 'Running on http://localhost:5173' -ForegroundColor Cyan; Write-Host ''; npm run dev"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", $frontendCommand
 
 Write-Host ""
 Write-Host "✅ Servers are starting in separate windows!" -ForegroundColor Green

@@ -20,7 +20,8 @@ try {
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+// Increase JSON body size limit to 100MB to accommodate base64-encoded prescription files (50MB file = ~67MB base64)
+app.use(express.json({ limit: '100mb' }));
 
 // Health check
 app.get('/health', (req, res) => {
