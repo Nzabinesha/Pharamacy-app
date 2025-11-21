@@ -39,8 +39,8 @@ export function Login() {
       <div className="max-w-md w-full">
         <div className="card">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to your MediFinder account</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back!</h1>
+            <p className="text-gray-600">Plese login to continue</p>
           </div>
 
           {error && (
@@ -94,6 +94,7 @@ export function Login() {
                 Sign up
               </Link>
             </p>
+
             <p className="text-sm text-gray-600">
               Are you a pharmacy?{' '}
               <Link to="/pharmacy/login" className="text-primary-600 hover:text-primary-700 font-medium">
