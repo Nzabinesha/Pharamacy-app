@@ -14,21 +14,70 @@ export function Prescription() {
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    const inputElement = e.target;
+    
     if (!file) return;
+    
+    // Check file size (50MB limit)
+    const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+    if (file.size > maxSize) {
+      alert('File size exceeds 50MB limit. Please choose a smaller file.');
+      inputElement.value = '';
+      return;
+    }
     
     setFileName(file.name);
     setStatus('uploading');
+    setFilePreview(null); // Clear previous preview
     
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
+    // Handle both images and PDFs
+    const reader = new FileReader();
+    
+    // Create a promise that resolves when the file is read
+    const fileReadPromise = new Promise<string>((resolve, reject) => {
       reader.onloadend = () => {
-        setFilePreview(reader.result as string);
+        if (reader.result && typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject(new Error('Failed to read file'));
+        }
       };
-      reader.readAsDataURL(file);
-    }
+      reader.onerror = () => {
+        reject(new Error('Error reading file'));
+      };
+    });
     
-    await new Promise(r => setTimeout(r, 800));
-    setStatus('pending');
+    // Read the file as data URL
+    reader.readAsDataURL(file);
+    
+    try {
+      // Wait for the file to be read
+      const dataUrl = await fileReadPromise;
+      
+      // Validate the data URL
+      if (!dataUrl || dataUrl.length < 100) {
+        throw new Error('Invalid data URL generated');
+      }
+      
+      console.log('File read successfully:', {
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        dataUrlLength: dataUrl.length,
+        dataUrlPrefix: dataUrl.substring(0, 50)
+      });
+      
+      setFilePreview(dataUrl);
+      setStatus('pending');
+    } catch (error) {
+      console.error('Error reading file:', error);
+      alert(`Failed to read file: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      setStatus('idle');
+      setFileName(null);
+      setFilePreview(null);
+      // Reset the file input
+      inputElement.value = '';
+    }
   }
 
   async function handlePlaceOrder(e: React.FormEvent) {
@@ -164,7 +213,7 @@ export function Prescription() {
                       {fileName ? 'Change File' : 'Upload Prescription'}
                     </span>
                     <span className="text-sm text-gray-500">
-                      PDF, JPG, PNG (Max 10MB)
+                      PDF, JPG, PNG (Max 50MB)
                     </span>
                   </label>
                 </div>
@@ -172,7 +221,52 @@ export function Prescription() {
                 {filePreview && (
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-                    <img src={filePreview} alt="Prescription preview" className="max-w-full h-auto rounded border" />
+                    {filePreview.startsWith('data:application/pdf') || filePreview.includes('application/pdf') ? (
+                      <iframe
+                        src={filePreview}
+                        className="w-full h-96 rounded border"
+                        title="Prescription preview"
+                      />
+                    ) : (
+                      <div className="relative">
+                        <img 
+                          src={filePreview} 
+                          alt="Prescription preview" 
+                          className="max-w-full h-auto rounded border"
+                          style={{ display: 'block' }}
+                          onError={(e) => {
+                            console.error('Error loading image preview:', {
+                              src: filePreview?.substring(0, 100),
+                              srcLength: filePreview?.length
+                            });
+                            const img = e.currentTarget;
+                            img.style.display = 'none';
+                            const parent = img.parentElement;
+                            if (parent && !parent.querySelector('.error-message')) {
+                              const errorDiv = document.createElement('div');
+                              errorDiv.className = 'error-message p-4 text-center text-red-600 bg-red-50 rounded';
+                              errorDiv.textContent = 'Failed to load image preview. The file may be corrupted or too large.';
+                              parent.appendChild(errorDiv);
+                            }
+                          }}
+                          onLoad={(e) => {
+                            console.log('Image preview loaded successfully:', {
+                              naturalWidth: e.currentTarget.naturalWidth,
+                              naturalHeight: e.currentTarget.naturalHeight
+                            });
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {status === 'uploading' && !filePreview && (
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary-600"></div>
+                      <p className="text-sm text-gray-700">Reading file...</p>
+                    </div>
                   </div>
                 )}
 

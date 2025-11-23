@@ -16,6 +16,226 @@ import {
   removeInsurancePartner,
 } from '@/services/dashboardApi';
 
+function PrescriptionViewer({ prescriptionFile, prescriptionStatus, orderId, onUpdatePrescription }: {
+  prescriptionFile: string;
+  prescriptionStatus?: string | null;
+  orderId: string;
+  onUpdatePrescription: (orderId: string, status: string) => void;
+}) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  
+  // Check if it's a PDF or image
+  const isPDF = prescriptionFile.startsWith('data:application/pdf') || 
+                prescriptionFile.includes('application/pdf');
+  const isImage = !isPDF;
+
+  const handleOpenFullscreen = () => {
+    setIsFullscreen(true);
+    setZoom(1);
+  };
+
+  const handleCloseFullscreen = () => {
+    setIsFullscreen(false);
+    setZoom(1);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.25, 0.5));
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+  };
+
+  return (
+    <div>
+      <h3 className="font-semibold text-gray-900 mb-3">Prescription</h3>
+      <div className="bg-gray-50 rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            prescriptionStatus === 'approved' ? 'bg-pharmacy-100 text-pharmacy-700' :
+            prescriptionStatus === 'rejected' ? 'bg-red-100 text-red-700' :
+            'bg-yellow-100 text-yellow-700'
+          }`}>
+            Status: {prescriptionStatus || 'pending'}
+          </span>
+        </div>
+        {prescriptionStatus !== 'approved' && (
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={() => {
+                onUpdatePrescription(orderId, 'approved');
+              }}
+              className="btn-primary bg-pharmacy-600 hover:bg-pharmacy-700 text-sm py-2"
+            >
+              ✓ Approve Prescription
+            </button>
+            <button
+              onClick={() => {
+                onUpdatePrescription(orderId, 'rejected');
+              }}
+              className="btn-secondary text-sm py-2 border-red-600 text-red-600 hover:bg-red-50"
+            >
+              ✗ Reject Prescription
+            </button>
+          </div>
+        )}
+        
+        {/* Prescription Display */}
+        <div className="mt-3 border rounded-lg bg-white overflow-hidden">
+          <div className="flex items-center justify-between p-2 bg-gray-100 border-b">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleZoomOut}
+                className="p-1 hover:bg-gray-200 rounded"
+                title="Zoom Out"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+                </svg>
+              </button>
+              <span className="text-sm font-medium">{Math.round(zoom * 100)}%</span>
+              <button
+                onClick={handleZoomIn}
+                className="p-1 hover:bg-gray-200 rounded"
+                title="Zoom In"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                </svg>
+              </button>
+              <button
+                onClick={handleResetZoom}
+                className="p-1 hover:bg-gray-200 rounded text-sm"
+                title="Reset Zoom"
+              >
+                Reset
+              </button>
+            </div>
+            <button
+              onClick={handleOpenFullscreen}
+              className="p-1 hover:bg-gray-200 rounded"
+              title="View Fullscreen"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            </button>
+          </div>
+          
+          <div className="overflow-auto max-h-96 p-4 bg-gray-50" style={{ maxHeight: '400px' }}>
+            {isPDF ? (
+              <iframe
+                src={prescriptionFile}
+                className="w-full border-0"
+                style={{ 
+                  height: `${400 * zoom}px`,
+                  transform: `scale(${zoom})`,
+                  transformOrigin: 'top left',
+                  width: `${100 / zoom}%`
+                }}
+                title="Prescription PDF"
+              />
+            ) : (
+              <div className="flex justify-center">
+                <img 
+                  src={prescriptionFile} 
+                  alt="Prescription" 
+                  className="rounded border shadow-sm"
+                  style={{ 
+                    maxWidth: '100%',
+                    height: 'auto',
+                    transform: `scale(${zoom})`,
+                    transformOrigin: 'top center'
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Fullscreen Modal */}
+      {isFullscreen && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col">
+          <div className="flex items-center justify-between p-4 bg-gray-900 text-white">
+            <h3 className="text-lg font-semibold">Prescription Viewer</h3>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleZoomOut}
+                  className="p-2 hover:bg-gray-700 rounded"
+                  title="Zoom Out"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+                  </svg>
+                </button>
+                <span className="text-sm font-medium min-w-[60px] text-center">{Math.round(zoom * 100)}%</span>
+                <button
+                  onClick={handleZoomIn}
+                  className="p-2 hover:bg-gray-700 rounded"
+                  title="Zoom In"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleResetZoom}
+                  className="px-3 py-1 hover:bg-gray-700 rounded text-sm"
+                  title="Reset Zoom"
+                >
+                  Reset
+                </button>
+              </div>
+              <button
+                onClick={handleCloseFullscreen}
+                className="p-2 hover:bg-gray-700 rounded"
+                title="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-auto p-4 flex items-center justify-center">
+            {isPDF ? (
+              <iframe
+                src={prescriptionFile}
+                className="w-full h-full border-0"
+                style={{ 
+                  transform: `scale(${zoom})`,
+                  transformOrigin: 'center center',
+                  width: `${100 / zoom}%`,
+                  height: `${100 / zoom}%`
+                }}
+                title="Prescription PDF"
+              />
+            ) : (
+              <img 
+                src={prescriptionFile} 
+                alt="Prescription" 
+                className="max-w-full max-h-full rounded shadow-2xl"
+                style={{ 
+                  transform: `scale(${zoom})`,
+                  transformOrigin: 'center center'
+                }}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 type Tab = 'stock' | 'orders' | 'insurance';
 
 export function PharmacyDashboard() {
@@ -715,49 +935,12 @@ function OrderDetailsModal({ order, onClose, onUpdateStatus, onUpdatePrescriptio
 
           {/* Prescription */}
           {order.prescriptionFile && (
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Prescription</h3>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    order.prescriptionStatus === 'approved' ? 'bg-pharmacy-100 text-pharmacy-700' :
-                    order.prescriptionStatus === 'rejected' ? 'bg-red-100 text-red-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    Status: {order.prescriptionStatus || 'pending'}
-                  </span>
-                </div>
-                {order.prescriptionStatus !== 'approved' && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        onUpdatePrescription(order.id, 'approved');
-                      }}
-                      className="btn-primary bg-pharmacy-600 hover:bg-pharmacy-700 text-sm py-2"
-                    >
-                      ✓ Approve Prescription
-                    </button>
-                    <button
-                      onClick={() => {
-                        onUpdatePrescription(order.id, 'rejected');
-                      }}
-                      className="btn-secondary text-sm py-2 border-red-600 text-red-600 hover:bg-red-50"
-                    >
-                      ✗ Reject Prescription
-                    </button>
-                  </div>
-                )}
-                {order.prescriptionFile && (
-                  <div className="mt-3">
-                    <img 
-                      src={order.prescriptionFile} 
-                      alt="Prescription" 
-                      className="max-w-full rounded-lg border"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
+            <PrescriptionViewer
+              prescriptionFile={order.prescriptionFile}
+              prescriptionStatus={order.prescriptionStatus}
+              orderId={order.id}
+              onUpdatePrescription={onUpdatePrescription}
+            />
           )}
 
           {/* Delivery Info */}
