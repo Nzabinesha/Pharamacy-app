@@ -96,3 +96,6 @@ export function findUserById(id) {
   const db = getDb();
   return db.prepare('SELECT id, email, name, phone, role, created_at FROM users WHERE id = ?').get(id);
 }
+
+// Debug log added by Samuel
+console.log("User service loaded");
