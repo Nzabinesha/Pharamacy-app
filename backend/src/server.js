@@ -103,3 +103,6 @@ app.listen(PORT, () => {
   console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
   console.log(`❤️  Health check: http://localhost:${PORT}/health`);
 });
+
+// Added by Samuel: Simple startup log (no functional impact)
+console.log("MediFinder backend initialized... (log added by Samuel)");
