@@ -463,7 +463,4 @@ console.log(data);
 - [Express.js Documentation](https://expressjs.com/) - Express framework docs
 - [JWT Documentation](https://jwt.io/) - JSON Web Tokens docs
 
----
-
-**Last Updated:** 2024-01-01
 
