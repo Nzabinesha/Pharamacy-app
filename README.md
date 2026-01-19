@@ -8,6 +8,7 @@ A modern web application that helps residents of Kigali find pharmacies with the
 - Difficulty locating pharmacies with required medicines
 - Many people move across the city searching for pharmacies that stock their prescribed drugs
 - Patients often don't know whether a pharmacy has their medicine, causing wasted trips and delays
+- They do not know if there are pharmacies around them
 - Insurance-related barriers - pharmacies may prefer cash payments over insurance claims
 
 **Impact:**
@@ -25,9 +26,10 @@ A digital platform that displays pharmacies with prescribed medicine in stock, s
 #### 🔍 Medicine Search & Discovery
 - **Search by Medicine Name**: Find pharmacies that have specific medicines in stock
 - **Location Filtering**: Filter pharmacies by sector/location in Kigali
-- **Insurance Filtering**: Filter pharmacies by insurance type (RSSB, Mutuelle, Private-A, Private-B, etc.)
+- **Insurance Filtering**: Filter pharmacies by insurance type (RSSB, Mutuelle, RAMA, Eden care, Britam, .)
 - **Interactive Maps**: View pharmacy locations on an interactive map using Leaflet
 - **Pharmacy Details**: View detailed information about each pharmacy including contact, address, and available medicines
+- AI chatbot to ask questions about medicine their mechanism and how to proper use it.
 
 #### 🔐 Authentication
 - **User Registration**: Create an account with email, name, and phone
@@ -35,11 +37,12 @@ A digital platform that displays pharmacies with prescribed medicine in stock, s
 - **Session Management**: Persistent login sessions
 
 #### 📋 Prescription & Ordering
-- **Prescription Upload**: Upload prescription images (PDF, JPG, PNG) for verification
-- **Prescription Status**: Track prescription approval status (pending, approved, rejected)
+
 - **Shopping Cart**: Add medicines to cart with quantity selection
 - **Online Ordering**: Place orders with delivery or pickup options
 - **Delivery Address**: Specify delivery address for home delivery
+- **Prescription Upload**: Upload prescription images (PDF, JPG, PNG) for verification
+- **Prescription Status**: Track prescription approval status (pending, approved, rejected)
 - **Order Tracking**: View all placed orders with status updates
 - **Order History**: Access complete order history with details
 
